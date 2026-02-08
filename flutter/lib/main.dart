@@ -25,19 +25,19 @@ class TodoListScreen extends StatefulWidget {
 }
 
 class _TodoListScreenState extends State<TodoListScreen> {
-  List<String> _todoItems = [];
+  List<String> _todos = [];
   final TextEditingController _controller = TextEditingController();
 
-  void _addItem() {
+  void _addTodo() {
     setState(() {
-      _todoItems.add(_controller.text);
+      _todos.add(_controller.text);
       _controller.clear();
     });
   }
 
-  void _removeItem(int index) {
+  void _removeTodo(int index) {
     setState(() {
-      _todoItems.removeAt(index);
+      _todos.removeAt(index);
     });
   }
 
@@ -46,28 +46,22 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('To-Do List')),
       body: Column(
-        children: <Widget>[
+        children: <Widget>[ 
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(controller: _controller,
-              decoration: const InputDecoration(hintText: 'Add a task'),
-              onSubmitted: (String text) {
-                _addItem();
-              },
-            ),
+            child: TextField(controller: _controller, decoration: const InputDecoration(hintText: 'Add a new task')), 
           ),
+          ElevatedButton(onPressed: _addTodo, child: const Text('Add')), 
           Expanded(
             child: ListView.builder(
-              itemCount: _todoItems.length,
+              itemCount: _todos.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_todoItems[index]),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      _removeItem(index);
-                    },
-                  ),
+                return Dismissible(
+                  key: Key(index.toString()),
+                  onDismissed: (direction) {
+                    _removeTodo(index);
+                  },
+                  child: ListTile(title: Text(_todos[index])), 
                 );
               },
             ),
