@@ -1,6 +1,6 @@
-# Flutter To-Do Uygulaması
+# Flutter To-Do App
 
-Bu uygulama, Flutter kullanarak geliştirilmiş basit bir To-Do listesi uygulamasıdır.
+Bu uygulama, Flutter kullanarak geliştirilmiş basit bir To-Do uygulamasıdır.
 
 ## Özellikler
 
@@ -11,7 +11,7 @@ Bu uygulama, Flutter kullanarak geliştirilmiş basit bir To-Do listesi uygulama
 ## Kurulum
 
 1.  Flutter'ın kurulu olduğundan emin olun.
-2.  Bu depoyu klonlayın:
+2.  Bu projeyi klonlayın:
     `git clone https://github.com/starlenj/flutterapps.git`
 3.  Proje dizinine gidin:
     `cd flutterapps/flutter`
