@@ -46,12 +46,14 @@ class _TodoListScreenState extends State<TodoListScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('To-Do List')),
       body: Column(
-        children: <Widget>[ 
+        children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(controller: _controller, decoration: const InputDecoration(hintText: 'Add a new task')), 
+            child: TextField(controller: _controller,
+              decoration: const InputDecoration(hintText: 'Add a new task'),
+            ),
           ),
-          ElevatedButton(onPressed: _addTodo, child: const Text('Add')), 
+          ElevatedButton(onPressed: _addTodo, child: const Text('Add')),
           Expanded(
             child: ListView.builder(
               itemCount: _todos.length,
@@ -61,7 +63,7 @@ class _TodoListScreenState extends State<TodoListScreen> {
                   onDismissed: (direction) {
                     _removeTodo(index);
                   },
-                  child: ListTile(title: Text(_todos[index])), 
+                  child: ListTile(title: Text(_todos[index])),
                 );
               },
             ),
