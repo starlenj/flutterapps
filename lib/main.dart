@@ -1,36 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoapp/Core/Router/app_router.dart';
+import 'package:todoapp/Core/database/isar_service.dart';
 
-void main() {
-  // Isar'ı veya binding'i burada hazırlamak istersen:
-  // WidgetsFlutterBinding.ensureInitialized();
-
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  try {
+    await IsarService().init();
+  } catch (e) {
+    debugPrint('Warning: Isar init failed : $e');
+  }
   runApp(const ProviderScope(child: StashMarkApp()));
 }
 
-class StashMarkApp extends StatelessWidget {
+class StashMarkApp extends ConsumerWidget {
   const StashMarkApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+
+    return MaterialApp.router(
       title: 'StashMark',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
-          brightness: Brightness.light,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6366F1)),
         useMaterial3: true,
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(body: Center(child: Text('StashMark'))),
+      routerConfig: router,
     );
   }
 }
