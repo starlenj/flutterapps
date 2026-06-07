@@ -17,9 +17,9 @@ const TagSchema = CollectionSchema(
   name: r'Tag',
   id: 4007045862261149568,
   properties: {
-    r'colormex': PropertySchema(
+    r'colorHex': PropertySchema(
       id: 0,
-      name: r'colormex',
+      name: r'colorHex',
       type: IsarType.long,
     ),
     r'createdAt': PropertySchema(
@@ -77,7 +77,7 @@ void _tagSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.colormex);
+  writer.writeLong(offsets[0], object.colorHex);
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeString(offsets[2], object.name);
 }
@@ -89,7 +89,7 @@ Tag _tagDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Tag(
-    colormex: reader.readLongOrNull(offsets[0]),
+    colorHex: reader.readLongOrNull(offsets[0]),
     name: reader.readString(offsets[2]),
   );
   object.createdAt = reader.readDateTime(offsets[1]);
@@ -300,58 +300,58 @@ extension TagQueryWhere on QueryBuilder<Tag, Tag, QWhereClause> {
 }
 
 extension TagQueryFilter on QueryBuilder<Tag, Tag, QFilterCondition> {
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexIsNull() {
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'colormex',
+        property: r'colorHex',
       ));
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexIsNotNull() {
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'colormex',
+        property: r'colorHex',
       ));
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexEqualTo(int? value) {
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexEqualTo(int? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'colormex',
+        property: r'colorHex',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexGreaterThan(
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexGreaterThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'colormex',
+        property: r'colorHex',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexLessThan(
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexLessThan(
     int? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'colormex',
+        property: r'colorHex',
         value: value,
       ));
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterFilterCondition> colormexBetween(
+  QueryBuilder<Tag, Tag, QAfterFilterCondition> colorHexBetween(
     int? lower,
     int? upper, {
     bool includeLower = true,
@@ -359,7 +359,7 @@ extension TagQueryFilter on QueryBuilder<Tag, Tag, QFilterCondition> {
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'colormex',
+        property: r'colorHex',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -607,15 +607,15 @@ extension TagQueryObject on QueryBuilder<Tag, Tag, QFilterCondition> {}
 extension TagQueryLinks on QueryBuilder<Tag, Tag, QFilterCondition> {}
 
 extension TagQuerySortBy on QueryBuilder<Tag, Tag, QSortBy> {
-  QueryBuilder<Tag, Tag, QAfterSortBy> sortByColormex() {
+  QueryBuilder<Tag, Tag, QAfterSortBy> sortByColorHex() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'colormex', Sort.asc);
+      return query.addSortBy(r'colorHex', Sort.asc);
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterSortBy> sortByColormexDesc() {
+  QueryBuilder<Tag, Tag, QAfterSortBy> sortByColorHexDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'colormex', Sort.desc);
+      return query.addSortBy(r'colorHex', Sort.desc);
     });
   }
 
@@ -645,15 +645,15 @@ extension TagQuerySortBy on QueryBuilder<Tag, Tag, QSortBy> {
 }
 
 extension TagQuerySortThenBy on QueryBuilder<Tag, Tag, QSortThenBy> {
-  QueryBuilder<Tag, Tag, QAfterSortBy> thenByColormex() {
+  QueryBuilder<Tag, Tag, QAfterSortBy> thenByColorHex() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'colormex', Sort.asc);
+      return query.addSortBy(r'colorHex', Sort.asc);
     });
   }
 
-  QueryBuilder<Tag, Tag, QAfterSortBy> thenByColormexDesc() {
+  QueryBuilder<Tag, Tag, QAfterSortBy> thenByColorHexDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'colormex', Sort.desc);
+      return query.addSortBy(r'colorHex', Sort.desc);
     });
   }
 
@@ -695,9 +695,9 @@ extension TagQuerySortThenBy on QueryBuilder<Tag, Tag, QSortThenBy> {
 }
 
 extension TagQueryWhereDistinct on QueryBuilder<Tag, Tag, QDistinct> {
-  QueryBuilder<Tag, Tag, QDistinct> distinctByColormex() {
+  QueryBuilder<Tag, Tag, QDistinct> distinctByColorHex() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'colormex');
+      return query.addDistinctBy(r'colorHex');
     });
   }
 
@@ -722,9 +722,9 @@ extension TagQueryProperty on QueryBuilder<Tag, Tag, QQueryProperty> {
     });
   }
 
-  QueryBuilder<Tag, int?, QQueryOperations> colormexProperty() {
+  QueryBuilder<Tag, int?, QQueryOperations> colorHexProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'colormex');
+      return query.addPropertyName(r'colorHex');
     });
   }
 

@@ -18,7 +18,7 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
   }) : _metadataService = metadata ?? MetadataService(),
        _platformService = platform ?? PlatformService(),
        _timestampParser = timestamp_parser ?? TimestampParser();
-  Future<void> addFromUrl(String url, {String? note}) async {
+  Future<int> addFromUrl(String url, {String? note}) async {
     final meta = await _metadataService.fetch(url);
     final platform = _platformService.detect(url);
     final timestampt = _timestampParser.parse(url);
@@ -35,7 +35,7 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
       createdAt: DateTime.now(),
       updatetAt: DateTime.now(),
     );
-    save(bookMark);
+    return await save(bookMark);
   }
 
   ContentType _inferContentType(Platfrom platform) {
@@ -62,16 +62,17 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
         .findAll();
   }
 
-  Future<void> attachTag(int bookMarkId, int tagId) async {
+  Future<void> attachTag(int bookMarkId, List<int> tagIds) async {
     final isar = await IsarService().db;
     await isar.writeTxn(() async {
       final bookmark = isar.bookmarks.get(bookMarkId);
-      final tag = isar.tags.get(tagId);
+      if (bookmark == null) return;
 
-      if (bookmark != null && tag != null) {
-        bookmark.tags.add(tag);
-        await bookmark.tags.save();
+      for (final tagId in tagIds) {
+        final tag = await isar.tags.get(tagId);
+        if (tag != null) bookmark.tags.add(tag);
       }
+      await bookmark.tags.save();
     });
   }
 }

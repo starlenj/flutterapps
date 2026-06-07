@@ -2,11 +2,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoapp/Features/Bookmark/Model/bookmark_model.dart';
 import 'package:todoapp/Features/Bookmark/Providers/bookmart_state.dart';
 import 'package:todoapp/Features/Bookmark/Repository/bookmark_repository.dart';
+import 'package:todoapp/Features/Tags/Providers/tag_provider.dart';
+
+final bookmarkRepositoryProvider = Provider<BookmarkRepository>((ref) {
+  return BookmarkRepository();
+});
+
+final bookmarkProvider = StateNotifierProvider<BookmarkNotifier, BookmartState>(
+  (ref) {
+    return BookmarkNotifier(
+      ref.watch(bookmarkRepositoryProvider),
+      ref, // Tag notifier'a erişim için
+    );
+  },
+);
 
 class BookmarkNotifier extends StateNotifier<BookmartState> {
   final BookmarkRepository _repo;
+  final Ref _read;
 
-  BookmarkNotifier(this._repo) : super(const BookmartState()) {
+  BookmarkNotifier(this._repo, this._read) : super(const BookmartState()) {
     load();
   }
   Future<void> load() async {
@@ -19,10 +34,24 @@ class BookmarkNotifier extends StateNotifier<BookmartState> {
     }
   }
 
-  Future<void> addUrl(String url, {String? note}) async {
+  Future<void> addUrl(
+    String url, {
+    String? note,
+    List<String>? tagNames,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      await _repo.addFromUrl(url, note);
+      final bookmarkId = await _repo.addFromUrl(url, note: note);
+      if (tagNames != null && tagNames.isNotEmpty) {
+        final tagNotifier = _read.read(tagProvider.notifier);
+        final tagIds = <int>[];
+
+        for (final name in tagNames) {
+          final tag = await tagNotifier.getOrCreate(name);
+          tagIds.add(tag.id);
+        }
+        await _repo.attachTag(bookMarkId, tagIds);
+      }
       await load();
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

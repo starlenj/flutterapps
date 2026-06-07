@@ -9,8 +9,8 @@ class Tag {
   @Index(unique: true)
   late String name;
 
-  int? colormex;
+  int? colorHex;
 
   DateTime createdAt = DateTime.now();
-  Tag({this.colormex, required this.name});
+  Tag({this.colorHex, required this.name});
 }
