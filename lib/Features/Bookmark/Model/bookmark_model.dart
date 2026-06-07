@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:isar/isar.dart";
+import "package:todoapp/Features/Tags/Model/tag_model.dart";
 
 part 'bookmark_model.g.dart';
 
@@ -48,8 +48,10 @@ class Bookmark {
   @enumerated
   SyncStatus syncStatus = SyncStatus.local;
 
-  DateTime createdAt = DateTime.now();
-  DateTime updatetAt = DateTime.now();
+  DateTime? createdAt = DateTime.now();
+  DateTime? updatetAt = DateTime.now();
+
+  final tags = IsarLink<Tag>();
 
   Bookmark({
     required this.url,
@@ -64,5 +66,7 @@ class Bookmark {
     this.isPinned = false,
     this.isArchived = false,
     this.syncStatus = SyncStatus.local,
+    this.createdAt,
+    this.updatetAt,
   });
 }

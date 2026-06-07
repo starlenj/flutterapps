@@ -111,7 +111,14 @@ const BookmarkSchema = CollectionSchema(
       ],
     )
   },
-  links: {},
+  links: {
+    r'tags': LinkSchema(
+      id: -7135396156909637248,
+      name: r'tags',
+      target: r'Tag',
+      single: true,
+    )
+  },
   embeddedSchemas: {},
   getId: _bookmarkGetId,
   getLinks: _bookmarkGetLinks,
@@ -191,6 +198,7 @@ Bookmark _bookmarkDeserialize(
     contentType:
         _BookmarkcontentTypeValueEnumMap[reader.readByteOrNull(offsets[0])] ??
             ContentType.link,
+    createdAt: reader.readDateTimeOrNull(offsets[1]),
     domain: reader.readStringOrNull(offsets[2]),
     isArchived: reader.readBoolOrNull(offsets[3]) ?? false,
     isPinned: reader.readBoolOrNull(offsets[4]) ?? false,
@@ -204,12 +212,11 @@ Bookmark _bookmarkDeserialize(
     timestampSeconds: reader.readLongOrNull(offsets[8]),
     title: reader.readStringOrNull(offsets[9]),
     tumbnailUrl: reader.readStringOrNull(offsets[10]),
+    updatetAt: reader.readDateTimeOrNull(offsets[11]),
     url: reader.readString(offsets[12]),
     userId: reader.readStringOrNull(offsets[13]),
   );
-  object.createdAt = reader.readDateTime(offsets[1]);
   object.id = id;
-  object.updatetAt = reader.readDateTime(offsets[11]);
   return object;
 }
 
@@ -224,7 +231,7 @@ P _bookmarkDeserializeProp<P>(
       return (_BookmarkcontentTypeValueEnumMap[reader.readByteOrNull(offset)] ??
           ContentType.link) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
@@ -246,7 +253,7 @@ P _bookmarkDeserializeProp<P>(
     case 10:
       return (reader.readStringOrNull(offset)) as P;
     case 11:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 12:
       return (reader.readString(offset)) as P;
     case 13:
@@ -322,11 +329,12 @@ Id _bookmarkGetId(Bookmark object) {
 }
 
 List<IsarLinkBase<dynamic>> _bookmarkGetLinks(Bookmark object) {
-  return [];
+  return [object.tags];
 }
 
 void _bookmarkAttach(IsarCollection<dynamic> col, Id id, Bookmark object) {
   object.id = id;
+  object.tags.attach(col, col.isar.collection<Tag>(), r'tags', id);
 }
 
 extension BookmarkByIndex on IsarCollection<Bookmark> {
@@ -558,8 +566,24 @@ extension BookmarkQueryFilter
     });
   }
 
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'createdAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'createdAt',
+      ));
+    });
+  }
+
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtEqualTo(
-      DateTime value) {
+      DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'createdAt',
@@ -569,7 +593,7 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -582,7 +606,7 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -595,8 +619,8 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> createdAtBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -1450,8 +1474,24 @@ extension BookmarkQueryFilter
     });
   }
 
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'updatetAt',
+      ));
+    });
+  }
+
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'updatetAt',
+      ));
+    });
+  }
+
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtEqualTo(
-      DateTime value) {
+      DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'updatetAt',
@@ -1461,7 +1501,7 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1474,7 +1514,7 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1487,8 +1527,8 @@ extension BookmarkQueryFilter
   }
 
   QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> updatetAtBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -1784,7 +1824,20 @@ extension BookmarkQueryObject
     on QueryBuilder<Bookmark, Bookmark, QFilterCondition> {}
 
 extension BookmarkQueryLinks
-    on QueryBuilder<Bookmark, Bookmark, QFilterCondition> {}
+    on QueryBuilder<Bookmark, Bookmark, QFilterCondition> {
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> tags(
+      FilterQuery<Tag> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'tags');
+    });
+  }
+
+  QueryBuilder<Bookmark, Bookmark, QAfterFilterCondition> tagsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', 0, true, 0, true);
+    });
+  }
+}
 
 extension BookmarkQuerySortBy on QueryBuilder<Bookmark, Bookmark, QSortBy> {
   QueryBuilder<Bookmark, Bookmark, QAfterSortBy> sortByContentType() {
@@ -2246,7 +2299,7 @@ extension BookmarkQueryProperty
     });
   }
 
-  QueryBuilder<Bookmark, DateTime, QQueryOperations> createdAtProperty() {
+  QueryBuilder<Bookmark, DateTime?, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
     });
@@ -2306,7 +2359,7 @@ extension BookmarkQueryProperty
     });
   }
 
-  QueryBuilder<Bookmark, DateTime, QQueryOperations> updatetAtProperty() {
+  QueryBuilder<Bookmark, DateTime?, QQueryOperations> updatetAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatetAt');
     });

@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:todoapp/Features/Tags/Model/tag_model.dart';
 import '../../Features/Bookmark/Model/bookmark_model.dart';
 
 class IsarService {
@@ -16,6 +17,6 @@ class IsarService {
 
   Future<Isar> _init() async {
     final dir = await getApplicationSupportDirectory();
-    return Isar.open([BookmarkSchema], directory: dir.path);
+    return Isar.open([BookmarkSchema, TagSchema], directory: dir.path);
   }
 }

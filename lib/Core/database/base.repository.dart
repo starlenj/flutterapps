@@ -17,11 +17,10 @@ abstract class BaseRepository<T> {
     return await col.get(id);
   }
 
-  Future<void> save(T item) async {
+  Future<int> save(T item) async {
     final isar = await IsarService().db;
     await isar.writeTxn(() async {
-      final col = isar.collection<T>();
-      await col.put(item);
+      return await isar.collection<T>().put(item);
     });
   }
 
