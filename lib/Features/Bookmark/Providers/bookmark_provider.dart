@@ -50,7 +50,7 @@ class BookmarkNotifier extends StateNotifier<BookmartState> {
           final tag = await tagNotifier.getOrCreate(name);
           tagIds.add(tag.id);
         }
-        await _repo.attachTag(bookMarkId, tagIds);
+        await _repo.attachTag(bookmarkId, tagIds);
       }
       await load();
     } catch (e) {
