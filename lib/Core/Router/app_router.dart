@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:todoapp/Core/shell/main_shell.dart';
 import 'package:todoapp/Features/Bookmark/ui/bookmark_add_page.dart';
 import 'package:todoapp/Features/Bookmark/ui/bookmark_detail_page.dart';
+import 'package:todoapp/Features/Bookmark/ui/bookmark_list_page.dart';
 import 'package:todoapp/Features/Home/ui/home_page.dart';
 import 'package:todoapp/Features/Search/ui/search_page.dart';
 import 'package:todoapp/Features/Settings/ui/settings_page.dart';
@@ -30,7 +31,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/search',
             name: 'search',
-            builder: (context, state) => const SearchPage(),
+            builder: (context, state) => const BookmarkListPage(),
           ),
           GoRoute(
             path: '/settings',

@@ -1,8 +1,8 @@
 // lib/features/bookmark/ui/bookmark_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoapp/Features/Bookmark/Providers/bookmart_state.dart';
 import '../providers/bookmark_provider.dart';
-import '../../bookmark/models/bookmark_model.dart';
 import 'package:go_router/go_router.dart';
 
 class BookmarkListPage extends ConsumerWidget {
@@ -54,7 +54,7 @@ class BookmarkListPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BookmarkState state, WidgetRef ref) {
+  Widget _buildBody(BookmartState state, WidgetRef ref) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -83,9 +83,9 @@ class BookmarkListPage extends ConsumerWidget {
             child: const Icon(Icons.delete_forever, color: Colors.white),
           ),
           child: ListTile(
-            leading: b.thumbnailUrl != null
+            leading: b.tumbnailUrl != null
                 ? Image.network(
-                    b.thumbnailUrl!,
+                    b.tumbnailUrl,
                     width: 56,
                     height: 56,
                     fit: BoxFit.cover,
@@ -106,6 +106,52 @@ class BookmarkListPage extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildThumbnail(String? thumbnailUrl) {
+    if (thumbnailUrl == null) {
+      return Container(
+        width: 88,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.link, color: Colors.grey),
+      );
+    }
+
+    final uri = Uri.tryParse(thumbnailUrl);
+    final valid =
+        uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+    if (!valid) {
+      return Container(
+        width: 88,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.broken_image, color: Colors.grey),
+      );
+    }
+
+    // cached_network_image veya Image.network kullan
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: CachedNetworkImage(
+        imageUrl: thumbnailUrl,
+        width: 88,
+        height: 56,
+        fit: BoxFit.cover,
+        placeholder: (c, u) => Container(color: Colors.grey[200]),
+        errorWidget: (c, u, e) => Container(
+          color: Colors.grey[200],
+          child: const Icon(Icons.broken_image),
+        ),
+      ),
     );
   }
 }

@@ -55,14 +55,14 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
   }
 
   Future<List<Bookmark>> search(String query) async {
-    final isarCollection = await collection;
-
-    return await isarCollection
+    final isar = await IsarService().db;
+    final results = await isar.bookmarks
         .filter()
         .titleContains(query, caseSensitive: false)
         .or()
         .urlContains(query, caseSensitive: false)
         .findAll();
+    return results;
   }
 
   Future<void> attachTag(int bookMarkId, List<int> tagIds) async {
