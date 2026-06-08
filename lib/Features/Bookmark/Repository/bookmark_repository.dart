@@ -5,6 +5,7 @@ import 'package:todoapp/Core/Services/timestamp_parser.dart';
 import 'package:todoapp/Core/database/base.repository.dart';
 import 'package:todoapp/Core/database/isar_service.dart';
 import 'package:todoapp/Features/Bookmark/Model/bookmark_model.dart';
+import 'package:todoapp/Features/Tags/Model/tag_model.dart';
 
 class BookmarkRepository extends BaseRepository<Bookmark> {
   final MetadataService _metadataService;
@@ -22,7 +23,6 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
     final meta = await _metadataService.fetch(url);
     final platform = _platformService.detect(url);
     final timestampt = _timestampParser.parse(url);
-
     final bookMark = Bookmark(
       url: url,
       title: meta.title,
@@ -38,7 +38,7 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
     return await save(bookMark);
   }
 
-  ContentType _inferContentType(Platfrom platform) {
+  ContentType _inferContentType(Platform platform) {
     switch (platform) {
       case Platform.youtube:
       case Platform.vimeo:
@@ -55,17 +55,20 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
   }
 
   Future<List<Bookmark>> search(String query) async {
-    final col = await collection;
-    return await col
+    final isarCollection = await collection;
+
+    return await isarCollection
         .filter()
         .titleContains(query, caseSensitive: false)
+        .or()
+        .urlContains(query, caseSensitive: false)
         .findAll();
   }
 
   Future<void> attachTag(int bookMarkId, List<int> tagIds) async {
     final isar = await IsarService().db;
     await isar.writeTxn(() async {
-      final bookmark = isar.bookmarks.get(bookMarkId);
+      final bookmark = await isar.bookmarks.get(bookMarkId);
       if (bookmark == null) return;
 
       for (final tagId in tagIds) {

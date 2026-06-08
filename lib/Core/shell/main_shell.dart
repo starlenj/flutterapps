@@ -37,12 +37,6 @@ class MainShell extends StatelessWidget {
             ),
             const SizedBox(width: 48),
             _TabItem(
-              icon: Icons.label_outlined,
-              label: 'Tags',
-              path: '/tags',
-              context: context,
-            ),
-            _TabItem(
               icon: Icons.search,
               label: 'Search',
               path: '/search',

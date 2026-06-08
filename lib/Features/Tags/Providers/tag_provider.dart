@@ -36,7 +36,7 @@ class TagNotifier extends StateNotifier<TagState> {
   }
 
   Future<Tag> getOrCreate(String name) async {
-    final existing = state.tags.where((t) => t.name = name).toString();
+    final existing = state.tags.where((t) => t.name == name).toList();
     if (existing.isNotEmpty) return existing.first;
     return await create(name);
   }

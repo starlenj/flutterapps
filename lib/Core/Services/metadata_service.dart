@@ -27,11 +27,11 @@ class MetadataService {
   }
 
   String? _extractMeta(String html, String propert) {
-    final reg = RegExp(
-      '<meta[^>]+(?:property|name)=["\']$property["\'][^>]+content=["\']([^"\']+)["\']',
-      caseSensitive: false,
+    // Başına r koyarak $ işaretinin özel karakter algılanmasını engelliyoruz
+    final regex = RegExp(
+      r'<meta[^>]+(?:property|name)="([^"]+)"[^>]+content="([^"]+)"',
     );
-    return reg.firstMatch(html)?.group(1);
+    return regex.firstMatch(html)?.group(1);
   }
 
   String? _extractTitle(String html) {

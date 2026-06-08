@@ -51,7 +51,7 @@ class Bookmark {
   DateTime? createdAt = DateTime.now();
   DateTime? updatetAt = DateTime.now();
 
-  final tags = IsarLink<Tag>();
+  final tags = IsarLinks<Tag>();
 
   Bookmark({
     required this.url,

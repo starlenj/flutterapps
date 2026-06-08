@@ -19,7 +19,7 @@ abstract class BaseRepository<T> {
 
   Future<int> save(T item) async {
     final isar = await IsarService().db;
-    await isar.writeTxn(() async {
+    return await isar.writeTxn<int>(() async {
       return await isar.collection<T>().put(item);
     });
   }
