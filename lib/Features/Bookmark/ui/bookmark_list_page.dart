@@ -1,39 +1,48 @@
-// lib/features/bookmark/ui/bookmark_list_page.dart
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoapp/Features/Bookmark/Model/bookmark_model.dart';
 import 'package:todoapp/Features/Bookmark/Providers/bookmart_state.dart';
+import 'package:todoapp/Features/Bookmark/ui/bookmark_card.dart';
 import '../providers/bookmark_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 
-class BookmarkListPage extends ConsumerWidget {
+class BookmarkListPage extends ConsumerStatefulWidget {
   const BookmarkListPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BookmarkListPage> createState() => _BookmarkListPageState();
+}
+
+class _BookmarkListPageState extends ConsumerState<BookmarkListPage> {
+  final _searchCtrl = TextEditingController();
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(bookmarkProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bookmarks'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(bookmarkProvider.notifier).load(),
-            tooltip: 'Refresh',
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => context.pushNamed('add'),
-          ),
-        ],
+        actions: [],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
+
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: TextField(
+              controller: _searchCtrl,
               onChanged: (v) => ref.read(bookmarkProvider.notifier).search(v),
               decoration: InputDecoration(
-                hintText: 'Ara (başlık, domain, url)...',
+                hintText: 'Ara (başlık,domain,url)...',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 isDense: true,
@@ -41,117 +50,97 @@ class BookmarkListPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    _searchCtrl.clear();
+                    ref.read(bookmarkProvider.notifier).search('');
+                  },
+                  icon: const Icon(Icons.clear),
+                ),
               ),
             ),
           ),
         ),
       ),
-      body: _buildBody(state, ref),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.pushNamed('add'),
-        child: const Icon(Icons.add),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(bookmarkProvider.notifier).load();
+        },
+        child: _buildBody(state),
       ),
     );
   }
 
-  Widget _buildBody(BookmartState state, WidgetRef ref) {
-    if (state.isLoading) {
+  Widget _buildBody(BookmartState state) {
+    if (state.isLoading)
       return const Center(child: CircularProgressIndicator());
-    }
 
-    final items = state.searchQuery == null || state.searchQuery!.isEmpty
+    final items = (state.searchQuery == null || state.searchQuery!.isEmpty)
         ? state.items
         : state.filtered;
-
     if (items.isEmpty) {
-      return const Center(child: Text('Henüz kaydedilmiş öğe yok'));
+      return const Center(child: Text('Not Found'));
     }
 
-    return ListView.separated(
+    return ListView.builder(
       itemCount: items.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        final b = items[index];
+      itemBuilder: (context, i) {
+        final Bookmark b = items[i];
         return Dismissible(
           key: ValueKey(b.id),
           direction: DismissDirection.endToStart,
-          onDismissed: (_) => ref.read(bookmarkProvider.notifier).delete(b.id),
           background: Container(
             color: Colors.red,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: const Icon(Icons.delete_forever, color: Colors.white),
           ),
-          child: ListTile(
-            leading: b.tumbnailUrl != null
-                ? Image.network(
-                    b.tumbnailUrl,
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                  )
-                : const Icon(Icons.link),
-            title: Text(b.title ?? b.domain ?? 'İsimsiz'),
-            subtitle: Text(
-              b.domain ?? b.url,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: b.timestampSeconds != null
-                ? Chip(label: Text('${b.timestampSeconds}s'))
-                : null,
-            onTap: () {
-              context.push('/detail/${b.id}');
+          onDismissed: (_) async {
+            await ref.read(bookmarkProvider.notifier).delete(b.id);
+            if (!mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('deleted')));
+            }
+          },
+          child: BookmarkCard(
+            bookmark: b,
+            onTap: () => context.push('/detail/${b.id}'),
+            onDelete: () async {
+              await ref.read(bookmarkProvider.notifier).delete(b.id);
+              if (!mounted) return;
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Deleted')));
             },
+            onShare: () => _shareOrCopy(context, b.url),
           ),
         );
       },
     );
   }
 
-  Widget _buildThumbnail(String? thumbnailUrl) {
-    if (thumbnailUrl == null) {
-      return Container(
-        width: 88,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Icon(Icons.link, color: Colors.grey),
-      );
+  Future<void> _shareOrCopy(BuildContext context, String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Valid Url')));
+      return;
     }
-
-    final uri = Uri.tryParse(thumbnailUrl);
-    final valid =
-        uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
-
-    if (!valid) {
-      return Container(
-        width: 88,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(8),
+    debugPrint('safeShare called for: $url; platform isWeb=$kIsWeb');
+    try {
+      await Share.share(url);
+      await Clipboard.setData(ClipboardData(text: url));
+      final snackbar = SnackBar(
+        content: const Text('Url Panoya kopyalandı'),
+        action: SnackBarAction(
+          label: 'Open',
+          onPressed: () => launchUrl(uri, mode: LaunchMode.externalApplication),
         ),
-        child: const Icon(Icons.broken_image, color: Colors.grey),
       );
+    } catch (e) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
-
-    // cached_network_image veya Image.network kullan
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: CachedNetworkImage(
-        imageUrl: thumbnailUrl,
-        width: 88,
-        height: 56,
-        fit: BoxFit.cover,
-        placeholder: (c, u) => Container(color: Colors.grey[200]),
-        errorWidget: (c, u, e) => Container(
-          color: Colors.grey[200],
-          child: const Icon(Icons.broken_image),
-        ),
-      ),
-    );
   }
 }

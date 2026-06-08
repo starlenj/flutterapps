@@ -28,7 +28,7 @@ class BookmarkNotifier extends StateNotifier<BookmartState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final items = await _repo.getAll();
-      _apply(items);
+      _apply(source: items);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -65,22 +65,31 @@ class BookmarkNotifier extends StateNotifier<BookmartState> {
 
   void search(String query) {
     state = state.copyWith(searchQuery: query);
-    _apply(state.items);
+    _apply(source: state.items);
   }
 
   void clearError() => state = state.copyWith(error: null);
 
-  void _apply(List<Bookmark> source) {
-    final q = state.searchQuery;
-    if (q == null || q.isEmpty) {
+  // _apply fonksiyonu (düzeltildi)
+  void _apply({required List<Bookmark> source}) {
+    final String? q = state.searchQuery;
+
+    // eğer query boş ise tüm listeyi göster
+    if (q == null || q.trim().isEmpty) {
       state = state.copyWith(items: source, filtered: source, isLoading: false);
       return;
     }
-    final lower = q.toLowerCase();
-    final filtered = source.where((b) {
-      return (b.title?.toLowerCase().contains(lower) ?? false) ||
-          (b.domain?.toLowerCase().contains(lower) ?? false) ||
-          b.url.toLowerCase().contains(lower);
-    });
+
+    final String lower = q.toLowerCase();
+
+    final List<Bookmark> filtered = source.where((b) {
+      final titleContains = (b.title?.toLowerCase() ?? '').contains(lower);
+      final domainContains = (b.domain?.toLowerCase() ?? '').contains(lower);
+      final urlContains = (b.url?.toLowerCase() ?? '').contains(lower);
+      return titleContains || domainContains || urlContains;
+    }).toList();
+
+    // Burada filtered'i state'e yazıyoruz — bu satır eksikti
+    state = state.copyWith(items: source, filtered: filtered, isLoading: false);
   }
 }
