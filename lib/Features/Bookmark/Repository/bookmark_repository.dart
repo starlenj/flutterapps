@@ -3,15 +3,14 @@ import 'package:todoapp/Core/Services/metadata_service.dart';
 import 'package:todoapp/Core/Services/platform_service.dart';
 import 'package:todoapp/Core/Services/timestamp_parser.dart';
 import 'package:todoapp/Core/database/base.repository.dart';
-import 'package:todoapp/Core/database/isar_service.dart';
 import 'package:todoapp/Features/Bookmark/Model/bookmark_model.dart';
 import 'package:todoapp/Features/Tags/Model/tag_model.dart';
+import '../../../Core/database/isar_service.dart';
 
 class BookmarkRepository extends BaseRepository<Bookmark> {
   final MetadataService _metadataService;
   final PlatformService _platformService;
   final TimestampParser _timestampParser;
-
   BookmarkRepository({
     MetadataService? metadata,
     PlatformService? platform,
@@ -77,5 +76,29 @@ class BookmarkRepository extends BaseRepository<Bookmark> {
       }
       await bookmark.tags.save();
     });
+  }
+
+  BookmarkRepository._(
+    this._metadataService,
+    this._platformService,
+    this._timestampParser,
+  );
+  static final instance = BookmarkRepository._(
+    MetadataService(),
+    PlatformService(),
+    TimestampParser(),
+  );
+  Future<Bookmark?> loadBookmarkById(String id) async {
+    final isar = await IsarService().db;
+
+    // Eğer id int ise (Isar Id) bunu parse et
+    final intId = int.tryParse(id);
+    if (intId != null) {
+      return await isar.bookmarks.get(intId);
+    }
+
+    // Eğer sen string/uuid tabanlı id kullanıyorsan, Bookmark içinde string id tutmak
+    // gerekir; bu örnekte int id olduğundan null döndürüyoruz.
+    return null;
   }
 }
